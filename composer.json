@@ -1,0 +1,23 @@
+{
+    "name": "jhonl/projeto-db",
+    "description": "Projeto para Banco de Dados",
+    "type": "project",
+    "autoload": {
+        "psr-4": {
+            "App\\": "app/",
+            "Database\\": "database/",
+            "Routes\\": "routes/",
+            "Vendor\\": "vendor/",
+            "Config\\": "config/",
+            "Public\\": "public/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Jonathas Moreira",
+            "email": "jonjmoreira@gmail.com"
+        }
+    ],
+    "minimum-stability": "stable",
+    "require": {}
+}

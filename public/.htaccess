@@ -1,0 +1,13 @@
+DirectoryIndex index.php
+
+# habilitar reescritura pelo motor Apache
+RewriteEngine on
+
+RewriteBase /
+
+# entregar o arquivo/pasta diretamente se existir no servidor
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+# empurra qualquer request ao index.php
+RewriteRule ^(.*)$ index.php [L]
