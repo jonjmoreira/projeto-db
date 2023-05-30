@@ -75,7 +75,7 @@ class AuthController extends Controller
         $connection = new Database;
         $connection->setAttribute(Database::ATTR_ERRMODE, Database::ERRMODE_EXCEPTION);
 
-        $sql = "SELECT nome, id FROM usuario WHERE email = :email AND senha = :senha";
+        $sql = "SELECT nome, id, email FROM usuario WHERE email = :email AND senha = :senha";
         $stmt = $connection->prepare("$sql");
 
         $email = $_POST['email'];
@@ -90,9 +90,8 @@ class AuthController extends Controller
             $data = $stmt->fetch(Database::FETCH_OBJ);
 
             if($data) {
-                $this->setSessionData(true, $data->email, $data->id);
+                $this->setSessionData(true, $data->email, $data->id, $data->nome);
                 echo "Login efetuado com sucesso! Boas vindas, " . $data->nome . "!" . "<br>";
-                $this->getSessionData();
             } else {
                 $this->showLoginForm();
                 echo "Email ou senha incorretos!";
@@ -107,40 +106,18 @@ class AuthController extends Controller
 
     public function logout()
     {
-        echo "<br>Before destroy<br>";
-        $this->getSessionData();
-
         session_destroy();
-
-        echo "<br>Before unset<br>";
-        $this->getSessionData();
-
         session_unset();
-
-        echo "<br>After unset<br>";
-        $this->getSessionData();
 
         echo 'Sessão encerrada com sucesso.';
         $this->view('/auth/login.php');
     }
 
-    public function setSessionData(bool $islogged, string $user_email = null, int $user_id = null)
+    public function setSessionData(bool $islogged, string $user_email = null, int $user_id = null, string $user_name)
     {
         $_SESSION['islogged'] = $islogged;
         $_SESSION['user_email'] = $user_email;
         $_SESSION['user_id'] = $user_id;
-    }
-
-    public function getSessionData()
-    {
-        if(isset($_SESSION)) {
-            echo "<br>Is user logged in: ".$_SESSION['islogged'];
-            echo "<br>User email: ".$_SESSION['user_email'];
-            echo "<br>User ID: ".$_SESSION['user_id'];
-            echo "<br>Session ID: ".session_id();
-        } else {
-            echo "<br>Sessão não iniciada.<br>";
-        }
-        
+        $_SESSION['user_name'] = $user_name;
     }
 }

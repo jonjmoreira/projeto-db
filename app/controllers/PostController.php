@@ -23,14 +23,14 @@ class PostController extends Controller
         $stmt = $connection->prepare($sql);
 
         $conteudo = $_POST['conteudo'];
-        $id_usuario = 1; // necessário alterar quando construir sessão e auth de usuárip
+        $id_usuario = $_SESSION['user_id'];
 
         $stmt->bindParam(':conteudo', $conteudo);
         $stmt->bindParam(':id_usuario', $id_usuario);
 
-        try{
-            if($stmt->execute()) {
-                $this->view('/post/create.php');
+        try {
+            if ($stmt->execute()) {
+                $this->view('/home/home.php');
                 echo 'Postagem criada com sucesso!';
             }
         } catch (Exception $ex) {
@@ -41,8 +41,26 @@ class PostController extends Controller
         unset($connection);
     }
 
-    public function viewPosts() {
+    public function getUserPosts(int $userId)
+    {
         $connection = new Database;
         $connection->setAttribute(Database::ATTR_ERRMODE, Database::ERRMODE_EXCEPTION);
+
+        $sql = "SELECT * FROM post WHERE id_usuario = :id_usuario";
+        $stmt = $connection->prepare($sql);
+        $stmt->bindParam(':id_usuario', $userId);
+
+        $stmt->execute();
+
+        $posts = $stmt->fetchAll(Database::FETCH_OBJ);
+
+        if($posts) {
+            return $posts;
+        } else {
+            echo "Não há postagens.";
+        }
+        
+        unset($stmt);
+        unset($connection);
     }
 }

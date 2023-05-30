@@ -10,4 +10,9 @@ class HomeController extends Controller
     {
         $this->view('home/home.php');
     }
+
+    public function showExplore()
+    {
+        $this->view('home/explore.php');
+    }
 }
