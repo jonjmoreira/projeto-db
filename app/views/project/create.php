@@ -1,16 +1,32 @@
 <style>
     /* CSS styles for the form elements */
-    .form-container textarea {
+    .form-container {
+        max-width: 400px;
+        margin: 0 auto;
+    }
+
+    .form-container label {
+        display: block;
+        margin-bottom: 5px;
+    }
+
+    .form-container input[type="text"],
+    .form-container textarea,
+    .form-container select {
         width: 100%;
         padding: 10px;
         border: 1px solid #ccc;
         border-radius: 4px;
+        margin-bottom: 10px;
+    }
+
+    .form-container textarea {
         resize: vertical;
     }
 
     .form-container button[type="submit"] {
         display: block;
-        margin-top: 10px;
+        width: 100%;
         padding: 10px 20px;
         background-color: #4CAF50;
         color: white;
@@ -34,10 +50,10 @@
 
     <label for="estado_atual">Estado atual do Projeto:</label>
     <select id="estado_atual" name="estado_atual" required>
-        <option value="1">Ativo</option>
-        <option value="2">Pausado</option>
-        <option value="3">Completo</option>
-        <option value="4">Abandonado</option>
+        <option value="Ativo">Ativo</option>
+        <option value="Pausado">Pausado</option>
+        <option value="Completo">Completo</option>
+        <option value="Abandonado">Abandonado</option>
     </select>
 
     <input type="submit" value="Criar Projeto">

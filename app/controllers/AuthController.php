@@ -4,70 +4,59 @@ declare(strict_types=1);
 
 namespace App\Controllers;
 
+use App\Models\User;
 use Database\Database;
 use Exception;
 
 class AuthController extends Controller
 {
-
-    public function showLoginOrRegister()
+    public function showWelcome()
     {
-        $this->view('auth/welcome.php');
+        if(!$this->authenticate()) {
+            $this->view('auth/welcome.php');
+        } else {
+            header('location: /home');
+        }
     }
 
     // Mostrar o formulário de cadastro
     public function showRegistrationForm()
     {
-        $this->view('auth/register.php');
+        if(!$this->authenticate()) {
+            $this->view('auth/register.php');
+        } else {
+            header('location: /home');
+        }
     }
 
     // Executar o registro no banco de dados quando ocorrer um request POST
     public function register()
     {
-        $connection = new Database;
-        $connection->setAttribute(Database::ATTR_ERRMODE, Database::ERRMODE_EXCEPTION);
+        $userModel = new User;
 
-        $sql_insert = "INSERT INTO usuario (nome, email, senha) VALUES (:nome, :email, :senha)";
-        $sql_select = "SELECT id FROM usuario WHERE email = :email";
-
-        $stmt_insert = $connection->prepare($sql_insert);
-        $stmt_select = $connection->prepare($sql_select);
-
-        // Capturar os dados recebidos pelo POST
         $nome = $_POST['nome'];
         $email = $_POST['email'];
         $senha = $_POST['senha'];
 
-        // Ligar as variáveis aos placeholders na declaração $sql
-        $stmt_insert->bindParam(':nome', $nome);
-        $stmt_insert->bindParam(':email', $email);
-        $stmt_insert->bindParam(':senha', $senha);
-
-        $stmt_select->bindParam(':email', $email);
-
-        $stmt_select->execute();
-
-        $checked_id = $stmt_select->fetch(Database::FETCH_OBJ);
-        
         try {
-            if($checked_id) {
+            if($userModel->checkEmailData($email)) {
                 $this->showRegistrationForm();
                 echo 'Email já está sendo utilizado!';
             } else {
-                if($stmt_insert->execute()) echo 'Cadastro realizado com sucesso! Boas vindas, ' . $nome . '!';
+                $userModel->create($nome, $email, $senha);
             }
         } catch (Exception $ex) {
             echo 'Não foi possível realizar o cadastro. Erro: ' . $ex->getMessage();
         }
-
-        unset($stmt_insert);
-        unset($stmt_select);
-        unset($connection);
     }
 
     public function showLoginForm()
     {
-        $this->view('auth/login.php');
+        if(!$this->authenticate()) {
+            $this->view('auth/login.php');
+        } else {
+            header('location: /home');
+        }
     }
 
     public function login()
@@ -90,7 +79,10 @@ class AuthController extends Controller
             $data = $stmt->fetch(Database::FETCH_OBJ);
 
             if($data) {
-                $this->setSessionData(true, $data->email, $data->id, $data->nome);
+                $this->setSessionData(true, $data->email, $data->id, $data->nome, true);
+
+                header('location: /home');
+
                 echo "Login efetuado com sucesso! Boas vindas, " . $data->nome . "!" . "<br>";
             } else {
                 $this->showLoginForm();
@@ -106,14 +98,13 @@ class AuthController extends Controller
 
     public function logout()
     {
+        header('location: /welcome');
+
         session_destroy();
         session_unset();
-
-        echo 'Sessão encerrada com sucesso.';
-        $this->view('/auth/login.php');
     }
 
-    public function setSessionData(bool $islogged, string $user_email = null, int $user_id = null, string $user_name)
+    public function setSessionData(bool $islogged, string $user_email = null, int $user_id = null, string $user_name, bool $refresh)
     {
         $_SESSION['islogged'] = $islogged;
         $_SESSION['user_email'] = $user_email;

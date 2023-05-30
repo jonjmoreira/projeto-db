@@ -3,32 +3,66 @@ declare(strict_types=1);
 
 use App\Controllers\PostController;
 
-// Importe o arquivo autoload.php, se necessário
-
-// Crie uma instância do PostController
 $postController = new PostController();
+$userName = $_SESSION['user_name'];
+$userId = $_SESSION['user_id'];
 
-// Restante do código do home.php
-?>
+echo "<h2>Bem-vindo(a), $userName</h2>";
 
-<h2>Bem-vindo(a), <?php echo $_SESSION['user_name']; ?></h2>
+$postController->showPostCreationForm();
 
-<!-- Formulário de criação de post -->
-<?php $postController->showPostCreationForm(); ?>
+echo "<h3>Seus Posts:</h3>";
 
-<!-- Exibição dos posts do usuário -->
-<h3>Seus Posts:</h3>
+$userPosts = $postController->getUserPosts($userId);
 
-<?php
-    $userPosts = $postController->getUserPosts($_SESSION['user_id']);
+if(!empty($userPosts)) {
+    foreach ($userPosts as $post) {
 
-    if(!empty($userPosts)) {
-        foreach ($userPosts as $post) {
-            echo "<div>";
-            echo "<h4>Post ID: " . $post->id . "</h4>";
-            echo "<p>Conteúdo: " . $post->conteudo . "</p>";
-            // Exiba mais detalhes do post, se necessário
-            echo "</div>";
-        }
+        $id = (int)$post->id;
+        $content = $post->conteudo;
+
+        echo '
+            <div class="post">
+            <h4>Post ID: ' . $id . '</h4>
+            <p>' . $content . '</p>
+            <div class="actions">
+                <form action="/post/edit" method="post">
+                    <input type="hidden" value="' . $id . '" name="id">
+                    <input type="submit" value="Editar">
+                </form>
+                <form action="/post/delete" method="post">
+                    <input type="hidden" value="' . $id . '" name="id">
+                    <input type="submit" value="Deletar" id="delete">
+                </form>
+            </div>
+            </div>';
     }
+} else {
+    echo 'Não há postagens.';
+}
 ?>
+
+<style>
+    .post {
+        border-bottom: 1px solid black;
+    }
+
+    .actions {
+        display: inline-flex;
+        margin: 2px;
+        padding: 5px;
+    }
+
+    .actions form {
+        margin-right: 10px;
+    }
+
+    .actions form input {
+        width: 8rem;
+    }
+
+    #delete {
+        background-color: dimgrey;
+        color: white;
+    }
+</style>

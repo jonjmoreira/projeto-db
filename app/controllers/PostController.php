@@ -11,7 +11,7 @@ class PostController extends Controller
 {
     public function showPostCreationForm()
     {
-        $this->view('/post/create.php');
+        $this->authView('/post/create.php');
     }
 
     public function create()
@@ -30,11 +30,35 @@ class PostController extends Controller
 
         try {
             if ($stmt->execute()) {
-                $this->view('/home/home.php');
+                $this->authView('/home/home.php');
                 echo 'Postagem criada com sucesso!';
             }
         } catch (Exception $ex) {
             echo 'Ocorreu um erro ao criar a postagem. Erro: ' . $ex->getMessage();
+        }
+
+        unset($stmt);
+        unset($connection);
+    }
+
+    public function delete()
+    {
+        $connection = new Database;
+        $connection->setAttribute(Database::ATTR_ERRMODE, Database::ERRMODE_EXCEPTION);
+
+        $sql = "DELETE FROM post WHERE id = :id";
+        $stmt = $connection->prepare($sql);
+
+        $id = $_POST['id'];
+
+        $stmt->bindParam(':id', $id);
+
+        try {
+            $stmt->execute();
+            echo 'Post excluído com sucesso.';
+            $this->view('/home/home.php');
+        } catch (Exception $ex) {
+            echo 'Erro: ' . $ex->getMessage();
         }
 
         unset($stmt);

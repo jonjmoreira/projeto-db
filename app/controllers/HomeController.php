@@ -8,11 +8,11 @@ class HomeController extends Controller
 {
     public function index()
     {
-        $this->view('home/home.php');
+        $this->authView('home/home.php');
     }
 
     public function showExplore()
     {
-        $this->view('home/explore.php');
+        $this->authView('home/explore.php');
     }
 }

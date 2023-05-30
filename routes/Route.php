@@ -24,7 +24,7 @@ class Route
             $controllerInstance->$action();
         } else {
             // Handle 404 Not Found error
-            echo '404 Not Found';
+            echo '404 Não Encontrado';
         }
     }
 }

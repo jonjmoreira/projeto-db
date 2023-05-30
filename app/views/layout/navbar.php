@@ -13,9 +13,9 @@
                             </div>
                         </li>
                         <li class=\"dropdown\">
-                            <a href=\"#\" class=\"dropbtn\">Perfil</a>
+                            <a href=\"#\" class=\"dropbtn\">".$_SESSION['user_name']."</a>
                             <div class=\"dropdown-content\">
-                                <a href=\"/settings\">Configurações</a>
+                                <a href=\"/profile\">Perfil</a>
                                 <a href=\"/logout\">Sair</a>
                             </div>
                         </li>";

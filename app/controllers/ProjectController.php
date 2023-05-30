@@ -11,12 +11,12 @@ class ProjectController extends Controller
 {
     public function index()
     {
-        $this->view('project/show.php');
+        $this->authView('project/show.php');
     }
 
     public function showProjectCreationForm()
     {
-        $this->view('project/create.php');
+        $this->authView('project/create.php');
     }
 
     public function create()
@@ -39,7 +39,7 @@ class ProjectController extends Controller
 
         try {
             if ($stmt->execute()) {
-                $this->view('project/create.php');
+                $this->authView('project/create.php');
                 echo 'Projeto criado com sucesso!';
             }
         } catch (Exception $ex) {
@@ -64,8 +64,6 @@ class ProjectController extends Controller
         if (!$project) {
             // Lógica para tratamento de projeto não encontrado
         }
-
-        $this->view('project/edit.php', ['project' => $project]);
 
         unset($stmt);
         unset($connection);
@@ -98,21 +96,24 @@ class ProjectController extends Controller
         unset($connection);
     }
 
-    public function delete(int $id)
+    public function delete()
     {
         $connection = new Database;
         $connection->setAttribute(Database::ATTR_ERRMODE, Database::ERRMODE_EXCEPTION);
 
-        $sql = "DELETE FROM projects WHERE id = :id";
+        $sql = "DELETE FROM projeto WHERE id = :id";
         $stmt = $connection->prepare($sql);
+
+        $id = $_POST['id'];
+
         $stmt->bindParam(':id', $id);
 
         try {
-            if ($stmt->execute()) {
-                // Redirecione para a página de listagem de projetos
-            }
+            $stmt->execute();
+            echo 'Projeto excluído com sucesso.';
+            $this->authView('/project/show.php');
         } catch (Exception $ex) {
-            echo 'Ocorreu um erro ao excluir o projeto. Erro: ' . $ex->getMessage();
+            echo 'Erro: ' . $ex->getMessage();
         }
 
         unset($stmt);
@@ -126,6 +127,29 @@ class ProjectController extends Controller
 
         $sql = "SELECT * FROM projeto";
         $stmt = $connection->prepare($sql);
+
+        $stmt->execute();
+
+        $projects = $stmt->fetchAll(Database::FETCH_OBJ);
+
+        if($projects) {
+            return $projects;
+        } else {
+            echo "Não há projetos.";
+        }
+        
+        unset($stmt);
+        unset($connection);
+    }
+
+    public function getAllUserProjects(int $id)
+    {
+        $connection = new Database;
+        $connection->setAttribute(Database::ATTR_ERRMODE, Database::ERRMODE_EXCEPTION);
+
+        $sql = "SELECT * FROM projeto WHERE id_usuario = :id";
+        $stmt = $connection->prepare($sql);
+        $stmt->bindParam(':id', $id);
 
         $stmt->execute();
 
